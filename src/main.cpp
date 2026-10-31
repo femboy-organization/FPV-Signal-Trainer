@@ -23,20 +23,28 @@ LRESULT CALLBACK WindowProcedure(
     }
 }
 
-void AddStatusLabel(HWND parent, int y, const wchar_t* text) {
-    CreateWindowExW(
+void AddStatusLabel(HWND parent, int y, int height, const wchar_t* text) {
+    const HWND control = CreateWindowExW(
         0,
         L"STATIC",
         text,
-        WS_CHILD | WS_VISIBLE,
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
         28,
         y,
-        680,
-        34,
+        900,
+        height,
         parent,
         nullptr,
         GetModuleHandleW(nullptr),
         nullptr);
+
+    if (control != nullptr) {
+        SendMessageW(
+            control,
+            WM_SETFONT,
+            reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)),
+            TRUE);
+    }
 }
 
 } // namespace
@@ -67,8 +75,8 @@ int WINAPI wWinMain(
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        780,
-        390,
+        980,
+        500,
         nullptr,
         nullptr,
         instance,
@@ -78,12 +86,27 @@ int WINAPI wWinMain(
         return 1;
     }
 
-    AddStatusLabel(window, 28, L"FPV Signal Trainer - native C++ foundation");
-    AddStatusLabel(window, 80, fpv::graphics::QueryD3D11Status().c_str());
-    AddStatusLabel(window, 124, fpv::xr::QueryRuntimeStatus().c_str());
-    AddStatusLabel(window, 168, L"Window capture: planned next milestone (Windows.Graphics.Capture).");
-    AddStatusLabel(window, 224, L"This build checks the local graphics device and OpenXR runtime.");
-    AddStatusLabel(window, 260, L"It does not yet display the simulator in the headset.");
+    const std::wstring graphicsStatus = fpv::graphics::QueryD3D11Status();
+    const std::wstring xrStatus = fpv::xr::QueryRuntimeStatus();
+
+    AddStatusLabel(window, 28, 34, L"FPV Signal Trainer - native C++ foundation");
+    AddStatusLabel(window, 82, 34, graphicsStatus.c_str());
+    AddStatusLabel(window, 128, 112, xrStatus.c_str());
+    AddStatusLabel(
+        window,
+        252,
+        48,
+        L"Window capture: planned next milestone (Windows.Graphics.Capture).");
+    AddStatusLabel(
+        window,
+        326,
+        44,
+        L"This build checks the local graphics device and OpenXR runtime.");
+    AddStatusLabel(
+        window,
+        370,
+        44,
+        L"It does not yet display the simulator in the headset.");
 
     ShowWindow(window, showCommand);
     UpdateWindow(window);
