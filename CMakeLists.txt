@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
+
+# The vcpkg x64-windows-static triplet uses the static MSVC runtime (/MT).
+# CMP0091 must be NEW before the first project() call for this setting to apply.
+cmake_policy(SET CMP0091 NEW)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 project(FPVSignalTrainer VERSION 0.1.0 LANGUAGES CXX)
 
 if(NOT WIN32)
@@ -17,6 +23,9 @@ add_executable(FPVSignalTrainer WIN32
     src/main.cpp
     src/xr/openxr_probe.cpp
     src/graphics/d3d11_probe.cpp
+)
+set_property(TARGET FPVSignalTrainer PROPERTY
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 target_include_directories(FPVSignalTrainer PRIVATE src)
 target_compile_definitions(FPVSignalTrainer PRIVATE
@@ -41,6 +50,9 @@ install(TARGETS FPVSignalTrainer RUNTIME DESTINATION .)
 if(FPV_BUILD_TESTS)
     enable_testing()
     add_executable(fpv_core_tests tests/core_tests.cpp)
+    set_property(TARGET fpv_core_tests PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+    )
     target_include_directories(fpv_core_tests PRIVATE src)
     target_compile_features(fpv_core_tests PRIVATE cxx_std_20)
     add_test(NAME fpv_core_tests COMMAND fpv_core_tests)
