@@ -31,6 +31,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare vcpkg binary cache directory
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path (Join-Path $env:GITHUB_WORKSPACE ".vcpkg-cache") | Out-Null
+
       - name: Cache vcpkg binary packages
         uses: actions/cache@v4
         with:
