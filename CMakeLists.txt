@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    # Match the x64-windows-static vcpkg triplet (/MT in Release, /MTd in Debug).
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 option(FPV_BUILD_TESTS "Build unit tests" ON)
 
 find_package(OpenXR CONFIG REQUIRED)
