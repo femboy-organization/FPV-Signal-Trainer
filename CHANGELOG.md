@@ -1,19 +1,21 @@
 # Changelog
 
-Здесь фиксируются значимые изменения проекта. Формат основан на Keep a Changelog; версии планируется вести по Semantic Versioning.
-
 ## [Unreleased]
 
 ### Added
-- Начальная архитектурная документация.
-- Базовое техническое задание и план разработки.
-- Шаблоны совместной работы и репозитория.
+- Native Windows C++20 application foundation.
+- CMake and vcpkg manifest with pinned OpenXR baseline.
+- Win32 diagnostic window.
+- Direct3D 11 device probe.
+- OpenXR runtime and extension probe.
+- Initial unit tests.
+- Windows x64 GitHub Actions build, test and packaging workflow.
+
+### Changed
+- Replaced proposed Unity architecture with native Win32, OpenXR and Direct3D 11.
 
 ### Not implemented yet
-- Windows PCVR application.
-- Window capture.
-- OSD editor.
-- Analog signal effects.
-- Scenario manager.
-
-Типы записей: Added, Changed, Deprecated, Removed, Fixed, Security.
+- OpenXR session, D3D11 graphics binding and quad layer.
+- Windows Graphics Capture.
+- Video pipeline, OSD and HLSL effects.
+- Scenario Manager and Passthrough hardware validation.

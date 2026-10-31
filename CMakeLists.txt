@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.25)
+project(FPVSignalTrainer VERSION 0.1.0 LANGUAGES CXX)
+
+if(NOT WIN32)
+    message(FATAL_ERROR "FPV Signal Trainer currently targets Windows only.")
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(FPV_BUILD_TESTS "Build unit tests" ON)
+
+find_package(OpenXR CONFIG REQUIRED)
+
+add_executable(FPVSignalTrainer WIN32
+    src/main.cpp
+    src/xr/openxr_probe.cpp
+    src/graphics/d3d11_probe.cpp
+)
+target_include_directories(FPVSignalTrainer PRIVATE src)
+target_compile_definitions(FPVSignalTrainer PRIVATE
+    UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX
+)
+target_link_libraries(FPVSignalTrainer PRIVATE
+    OpenXR::openxr_loader
+    d3d11
+    dxgi
+    user32
+    gdi32
+)
+
+if(MSVC)
+    target_compile_options(FPVSignalTrainer PRIVATE /W4 /permissive- /EHsc)
+else()
+    target_compile_options(FPVSignalTrainer PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+install(TARGETS FPVSignalTrainer RUNTIME DESTINATION .)
+
+if(FPV_BUILD_TESTS)
+    enable_testing()
+    add_executable(fpv_core_tests tests/core_tests.cpp)
+    target_include_directories(fpv_core_tests PRIVATE src)
+    target_compile_features(fpv_core_tests PRIVATE cxx_std_20)
+    add_test(NAME fpv_core_tests COMMAND fpv_core_tests)
+endif()
