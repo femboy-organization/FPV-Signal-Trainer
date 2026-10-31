@@ -2,34 +2,35 @@
 
 Нативное Windows PCVR-приложение для студентов направления беспилотных летательных систем. Цель — вывести окно FPV-симулятора на виртуальный монитор в Meta Quest 3 и моделировать визуальные эффекты аналогового видеоканала.
 
-**Текущий этап:** реализуется OpenXR-сессия, D3D11 swapchain и head-locked тестовая панель.
+**Текущий этап:** OpenXR session, D3D11 swapchain и head-locked тестовая панель реализованы в коде. Требуется аппаратная проверка на Quest 3.
 
 ## Технологии
+
 - C++20 / Win32 API;
 - OpenXR;
-- Direct3D 11 / DXGI;
-- HLSL;
+- Direct3D 11 / DXGI / HLSL;
 - Windows Graphics Capture (следующий этап);
 - CMake + vcpkg + MSVC;
 - GitHub Actions.
 
 Unity и Unreal Engine не используются. Рабочий сценарий — проводной Meta Quest Link по USB. Wi-Fi/Air Link и HDMI-карты захвата не входят в проект.
 
-## Функции
-1. Виртуальная панель в пространстве VIEW, закреплённая перед взглядом.
-2. Захват выбранного окна Windows.
-3. OSD Editor и сохранение профилей.
-4. Аналоговые эффекты: шум/рябь, тонкие горизонтальные полосы, цветовые искажения, красно-синее расслоение.
-5. NO SIGNAL только при реальной потере источника.
+## Автоматическая загрузка библиотек и сборка
 
-## Сборка Windows
-Требуется Visual Studio 2022 (Desktop development with C++), CMake 3.25+, Git и vcpkg. Установите vcpkg, задайте VCPKG_ROOT, затем из корня репозитория:
+Для локальной сборки на Windows установите Visual Studio 2022 с workload Desktop development with C++ и Windows SDK. Затем из корня репозитория выполните:
 
-    cmake --preset windows-msvc
-    cmake --build --preset windows-release --parallel
-    ctest --preset windows-release
+    powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1
 
-Запуск XR требует Meta Quest Link, активного OpenXR runtime и подключённой Quest 3.
+Скрипт сам скачает закреплённую версию vcpkg, установит библиотеки из vcpkg.json, настроит CMake, соберёт программу, запустит тесты и положит EXE в dist.
 
-## Статус
-В текущем этапе создаётся OpenXR instance/session, D3D11 swapchain и тестовая цветовая панель через quad composition layer. Захват окна, OSD и эффекты ещё не реализованы. Требуется проверка на физической Quest 3.
+Все внешние C++-зависимости перечисляются в vcpkg.json. При добавлении новой библиотеки vcpkg автоматически загрузит её на следующей сборке. Повторные сборки используют локальный кэш.
+
+Подробности: docs/DEPENDENCIES.md.
+
+## Meta Quest Link
+
+Meta Quest Link — отдельный runtime, не C++ package. Установите официальное приложение Meta Quest Link, подключите Quest 3 по USB, запустите Quest Link в гарнитуре и назначьте Meta Quest Link активным OpenXR runtime.
+
+## Текущий статус
+
+В коде реализованы OpenXR instance/system/session, D3D11 graphics binding, swapchain и тестовая цветовая панель через quad composition layer в VIEW space. Передача окна симулятора, OSD и аналоговые эффекты — следующие этапы. Успешная компиляция в CI не заменяет проверку на физической гарнитуре.
