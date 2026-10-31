@@ -39,21 +39,25 @@ Write-Host "Project : $projectRoot"
 Write-Host "vcpkg   : $vcpkgRoot"
 Write-Host "Baseline: $baseline"
 
+if (Test-Path -LiteralPath (Join-Path $vcpkgRoot ".git")) {
+    $partialClone = & $git.Source -C $vcpkgRoot config --get remote.origin.promisor 2>$null
+    if ($partialClone -eq "true") {
+        Write-Host "Replacing old partial vcpkg clone with a complete repository checkout."
+        Remove-Item -LiteralPath $vcpkgRoot -Recurse -Force
+    }
+}
+
 if (-not (Test-Path -LiteralPath (Join-Path $vcpkgRoot ".git"))) {
     if (Test-Path -LiteralPath $vcpkgRoot) {
         Remove-Item -LiteralPath $vcpkgRoot -Recurse -Force
     }
     Invoke-Checked -FilePath $git.Source -Arguments @(
-        "clone", "--filter=blob:none", "--no-checkout",
-        "https://github.com/microsoft/vcpkg.git", $vcpkgRoot
-    ) -Description "Download vcpkg source"
+        "clone", "https://github.com/microsoft/vcpkg.git", $vcpkgRoot
+    ) -Description "Download complete vcpkg repository"
 }
 
 Invoke-Checked -FilePath $git.Source -Arguments @(
-    "-C", $vcpkgRoot, "fetch", "--depth=1", "origin", $baseline
-) -Description "Fetch pinned vcpkg baseline"
-Invoke-Checked -FilePath $git.Source -Arguments @(
-    "-C", $vcpkgRoot, "checkout", "--detach", "FETCH_HEAD"
+    "-C", $vcpkgRoot, "checkout", "--detach", $baseline
 ) -Description "Select pinned vcpkg version"
 
 $bootstrap = Join-Path $vcpkgRoot "bootstrap-vcpkg.bat"
