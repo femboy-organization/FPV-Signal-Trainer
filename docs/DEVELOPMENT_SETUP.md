@@ -21,14 +21,32 @@ CMake preset использует vcpkg manifest mode и статический 
 
 ## Настройка Meta Quest Link / OpenXR runtime
 
-1. Установите и запустите приложение Meta Quest Link на Windows.
-2. Подключите Quest 3 к ноутбуку кабелем USB.
-3. В гарнитуре включите Quest Link и запустите Link-соединение.
-4. В Meta Quest Link откройте Settings > General.
+1. Установите и запустите приложение Meta Quest Link / Meta Horizon Link на Windows.
+2. Подключите Quest 3 кабелем USB.
+3. В гарнитуре откройте Quest Link и выберите Launch Quest Link, чтобы PCVR-соединение действительно запустилось.
+4. В Meta Quest Link на ПК откройте Settings > General.
 5. В разделе OpenXR Runtime нажмите Set Meta Quest Link as active.
-6. Перезапустите FPV Signal Trainer.
+6. Закройте FPV Signal Trainer и запустите его заново.
 
-Если активным runtime выбран SteamVR, WMR или другой PCVR runtime, приложение может подключиться к нему вместо Meta Quest Link. Для тестирования Quest должен быть активным runtime.
+### Если приложение сообщает XR_ERROR_RUNTIME_FAILURE
+
+Следующая диагностическая версия показывает:
+- какой OpenXR manifest выбран;
+- выбран ли он переменной XR_RUNTIME_JSON или через реестр Windows;
+- существует ли JSON-файл;
+- создаётся ли базовый OpenXR instance без графических расширений;
+- создаётся ли отдельный instance с XR_KHR_D3D11_enable.
+
+OpenXR Loader использует XR_RUNTIME_JSON как override; если переменная задана, она имеет приоритет над стандартным ActiveRuntime в реестре.
+
+Путь ActiveRuntime для 64-битного приложения:
+HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1\ActiveRuntime
+
+Не редактируйте реестр вслепую. Если manifest отсутствует или указывает на старую установку, сначала запустите Meta Quest Link и используйте его настройку Set Meta Quest Link as active. Если это не помогает, сохраните диагностический текст приложения и проверьте/восстановите установку Meta Quest Link.
+
+Официальная документация:
+- https://developers.meta.com/vr/documentation/unreal/unreal-link/
+- https://registry.khronos.org/OpenXR/specs/1.1/loader.html
 
 ## Структура исходников
 - src/main.cpp — Win32 shell.
@@ -41,6 +59,6 @@ CMake preset использует vcpkg manifest mode и статический 
 - tests — unit tests.
 
 ## Важно
-Текущий диагностический билд проверяет OpenXR instance и наличие D3D11 extension. Он ещё не создаёт полноценную XR session, swapchain или VR-монитор.
+Текущая диагностическая сборка проверяет создание OpenXR instance и D3D11 extension. Она ещё не создаёт полноценную XR session, swapchain или VR-монитор.
 
 GitHub Actions выполняет сборку и программные тесты, но аппаратные проверки требуют физической гарнитуры.

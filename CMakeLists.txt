@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
 
-# The vcpkg x64-windows-static triplet uses the static MSVC runtime (/MT).
-# CMP0091 must be NEW before the first project() call for this setting to apply.
 cmake_policy(SET CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
@@ -37,6 +35,7 @@ target_link_libraries(FPVSignalTrainer PRIVATE
     dxgi
     user32
     gdi32
+    advapi32
 )
 
 if(MSVC)

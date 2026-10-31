@@ -75,8 +75,8 @@ int WINAPI wWinMain(
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        980,
-        500,
+        1040,
+        650,
         nullptr,
         nullptr,
         instance,
@@ -91,20 +91,20 @@ int WINAPI wWinMain(
 
     AddStatusLabel(window, 28, 34, L"FPV Signal Trainer - native C++ foundation");
     AddStatusLabel(window, 82, 34, graphicsStatus.c_str());
-    AddStatusLabel(window, 128, 112, xrStatus.c_str());
+    AddStatusLabel(window, 128, 270, xrStatus.c_str());
     AddStatusLabel(
         window,
-        252,
+        420,
         48,
         L"Window capture: planned next milestone (Windows.Graphics.Capture).");
     AddStatusLabel(
         window,
-        326,
+        494,
         44,
-        L"This build checks the local graphics device and OpenXR runtime.");
+        L"This build diagnoses OpenXR runtime discovery and D3D11 extension creation.");
     AddStatusLabel(
         window,
-        370,
+        538,
         44,
         L"It does not yet display the simulator in the headset.");
 
