@@ -1,0 +1,26 @@
+name: Предложить функцию
+description: Предложить новую возможность или улучшение
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую задачу решает функция?
+      description: Опишите учебную или техническую потребность.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Предлагаемое решение
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Рассмотренные альтернативы
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Критерии приёмки

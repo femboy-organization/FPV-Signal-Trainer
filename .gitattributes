@@ -1,0 +1,27 @@
+* text=auto
+
+*.sh text eol=lf
+*.meta text
+*.unity text
+*.prefab text
+*.asset text
+*.mat text
+*.anim text
+*.controller text
+*.cs text
+*.h text
+*.hpp text
+*.cpp text
+*.shader text
+*.compute text
+*.hlsl text
+*.json text
+*.xml text
+*.yml text
+*.yaml text
+*.md text
+
+# Configure UnityYAMLMerge locally before relying on automatic merges.
+*.unity merge=unityyamlmerge
+*.prefab merge=unityyamlmerge
+*.asset merge=unityyamlmerge
