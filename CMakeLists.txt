@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 cmake_policy(SET CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(FPVSignalTrainer VERSION 0.1.0 LANGUAGES CXX)
+project(FPVSignalTrainer VERSION 0.2.0 LANGUAGES CXX)
 
 if(NOT WIN32)
     message(FATAL_ERROR "FPV Signal Trainer currently targets Windows only.")
@@ -19,20 +19,25 @@ find_package(OpenXR CONFIG REQUIRED)
 
 add_executable(FPVSignalTrainer WIN32
     src/main.cpp
-    src/xr/openxr_probe.cpp
-    src/graphics/d3d11_probe.cpp
+    src/xr/openxr_display.cpp
 )
 set_property(TARGET FPVSignalTrainer PROPERTY
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 target_include_directories(FPVSignalTrainer PRIVATE src)
 target_compile_definitions(FPVSignalTrainer PRIVATE
-    UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX
+    UNICODE
+    _UNICODE
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+    XR_USE_PLATFORM_WIN32
+    XR_USE_GRAPHICS_API_D3D11
 )
 target_link_libraries(FPVSignalTrainer PRIVATE
     OpenXR::openxr_loader
     d3d11
     dxgi
+    d3dcompiler
     user32
     gdi32
     advapi32

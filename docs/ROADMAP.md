@@ -1,55 +1,44 @@
 # Дорожная карта
 
-Сроки определяются после проверки оборудования.
+## Phase 0 — Native foundation
+- C++20, CMake, vcpkg.
+- Win32 desktop shell.
+- OpenXR runtime и D3D11 graphics binding.
+- CI build и unit tests.
 
-## Phase 0 — Аппаратная проверка
-- Проверить Meta Quest Link на доступных USB-A–USB-C и USB-C–USB-C кабелях.
-- Зафиксировать результаты USB Test и стабильность.
-- Проверить native OpenXR PCVR sample.
-- Проверить Passthrough over Link.
-- Оценить совместную нагрузку симулятора и VR-приложения.
+## Phase 1 — OpenXR virtual monitor
+- [x] Instance and system initialization code.
+- [x] D3D11 adapter selection using runtime LUID.
+- [x] Session and VIEW reference space.
+- [x] D3D11 swapchain and quad composition layer implementation.
+- [ ] Verify on physical Meta Quest 3 through wired Link.
+- [ ] Add size and position controls.
 
-## Phase 1 — Native Windows foundation
-- C++20 / CMake / vcpkg.
-- Win32 diagnostics window.
-- D3D11 device initialization.
-- OpenXR runtime and extension probe.
-- Unit tests.
-- GitHub Actions Windows build/test/package.
+## Phase 2 — Window Capture
+- Windows.Graphics.Capture picker for chosen HWND.
+- Direct3D11 frame pool and GPU texture pipeline.
+- Handle source resize, close and capture loss.
+- Display simulator image on the XR panel.
 
-**Текущий этап:** начальная основа создана. Это пока не VR-монитор.
+## Phase 3 — OSD
+- Element layout and settings.
+- Position, size, color, opacity and visibility.
+- JSON profiles and schema versioning.
 
-## Phase 2 — OpenXR monitor
-- D3D11 graphics binding.
-- OpenXR session и event loop.
-- Swapchain.
-- Quad composition layer в VIEW space.
-- Head-locked панель и настройки размера/положения.
+## Phase 4 — Analog Signal Engine
+- Noise and static.
+- Thin/rare horizontal bands.
+- Color distortion.
+- Red/blue chromatic separation.
+- Per-effect and master toggles.
 
-## Phase 3 — Window Capture
-- Windows.Graphics.Capture picker.
-- D3D11 frame textures.
-- Передача кадров в XR pipeline.
-- Обработка закрытия окна, изменения размера и восстановления потока.
+## Phase 5 — Scenario Manager
+- Save/load OSD and signal settings.
+- Import/export training profiles.
 
-## Phase 4 — OSD Editor
-- Элементы OSD и их параметры.
-- Позиционирование и визуальные настройки.
-- JSON profiles и маркировка демонстрационных значений.
+## Phase 6 — Passthrough and classroom validation
+- Validate Passthrough over Link.
+- Check keyboard/controller visibility, comfort, thermal load and lesson-length stability.
 
-## Phase 5 — Analog Signal Engine
-- Шум и рябь.
-- Редкие тонкие горизонтальные полосы.
-- Искажение цветов.
-- Красно-синее расслоение.
-- Независимые/общий переключатели.
-- HLSL profiling.
-
-## Phase 6 — Scenario Manager
-Профили OSD и эффектов, сохранение/загрузка, импорт/экспорт, версия схемы.
-
-## Phase 7 — Passthrough и эргономика
-Проверить видимость клавиатуры и органов управления, комфорт длительной работы. Если Passthrough обязателен, но не работает приемлемо через Link, пересмотреть архитектуру.
-
-## Phase 8 — Стабилизация и 1.0
-Длительные тесты, диагностика, упаковка, инструкции, проверка сторонних лицензий, Release Candidate и стабильный релиз.
+## Phase 7 — Release
+- Installer/package, user guide, hardware matrix, tests and release notes.

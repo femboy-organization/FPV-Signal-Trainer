@@ -1,60 +1,31 @@
-#include "graphics/d3d11_probe.h"
-#include "xr/openxr_probe.h"
+#include "xr/openxr_display.h"
 
 #include <windows.h>
+
+#include <string>
 
 namespace {
 
 constexpr wchar_t kWindowClass[] = L"FPVSignalTrainerWindow";
-constexpr wchar_t kWindowTitle[] = L"FPV Signal Trainer - Native development build";
+constexpr wchar_t kWindowTitle[] = L"FPV Signal Trainer";
+HWND gStatusControl = nullptr;
 
 LRESULT CALLBACK WindowProcedure(
-    HWND window,
-    UINT message,
-    WPARAM wParam,
-    LPARAM lParam) {
-
-    switch (message) {
-    case WM_DESTROY:
+    HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
+    if (message == WM_DESTROY) {
         PostQuitMessage(0);
         return 0;
-    default:
-        return DefWindowProcW(window, message, wParam, lParam);
+    }
+    return DefWindowProcW(window, message, wParam, lParam);
+}
+
+void UpdateStatus(const std::wstring& status) {
+    if (gStatusControl != nullptr) {
+        SetWindowTextW(gStatusControl, status.c_str());
     }
 }
 
-void AddStatusLabel(HWND parent, int y, int height, const wchar_t* text) {
-    const HWND control = CreateWindowExW(
-        0,
-        L"STATIC",
-        text,
-        WS_CHILD | WS_VISIBLE | SS_LEFT,
-        28,
-        y,
-        900,
-        height,
-        parent,
-        nullptr,
-        GetModuleHandleW(nullptr),
-        nullptr);
-
-    if (control != nullptr) {
-        SendMessageW(
-            control,
-            WM_SETFONT,
-            reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)),
-            TRUE);
-    }
-}
-
-} // namespace
-
-int WINAPI wWinMain(
-    HINSTANCE instance,
-    HINSTANCE,
-    PWSTR,
-    int showCommand) {
-
+HWND CreateMainWindow(HINSTANCE instance, int showCommand) {
     WNDCLASSEXW windowClass{};
     windowClass.cbSize = sizeof(windowClass);
     windowClass.lpfnWndProc = WindowProcedure;
@@ -65,63 +36,80 @@ int WINAPI wWinMain(
 
     if (RegisterClassExW(&windowClass) == 0 &&
         GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
-        return 1;
+        return nullptr;
     }
 
     const HWND window = CreateWindowExW(
-        0,
-        kWindowClass,
-        kWindowTitle,
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        1040,
-        650,
-        nullptr,
-        nullptr,
-        instance,
-        nullptr);
+        0, kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 780, 420,
+        nullptr, nullptr, instance, nullptr);
+    if (window == nullptr) return nullptr;
 
-    if (window == nullptr) {
-        return 1;
+    CreateWindowExW(
+        0, L"STATIC",
+        L"FPV Signal Trainer - native OpenXR application",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        24, 24, 700, 30, window, nullptr, instance, nullptr);
+
+    gStatusControl = CreateWindowExW(
+        0, L"STATIC", L"Initializing OpenXR...",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        24, 72, 710, 280, window, nullptr, instance, nullptr);
+
+    if (gStatusControl != nullptr) {
+        SendMessageW(gStatusControl, WM_SETFONT,
+            reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), TRUE);
     }
-
-    const std::wstring graphicsStatus = fpv::graphics::QueryD3D11Status();
-    const std::wstring xrStatus = fpv::xr::QueryRuntimeStatus();
-
-    AddStatusLabel(window, 28, 34, L"FPV Signal Trainer - native C++ foundation");
-    AddStatusLabel(window, 82, 34, graphicsStatus.c_str());
-    AddStatusLabel(window, 128, 270, xrStatus.c_str());
-    AddStatusLabel(
-        window,
-        420,
-        48,
-        L"Window capture: planned next milestone (Windows.Graphics.Capture).");
-    AddStatusLabel(
-        window,
-        494,
-        44,
-        L"This build diagnoses OpenXR runtime discovery and D3D11 extension creation.");
-    AddStatusLabel(
-        window,
-        538,
-        44,
-        L"It does not yet display the simulator in the headset.");
 
     ShowWindow(window, showCommand);
     UpdateWindow(window);
+    return window;
+}
+
+} // namespace
+
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int showCommand) {
+    const HWND window = CreateMainWindow(instance, showCommand);
+    if (window == nullptr) return 1;
+
+    fpv::xr::OpenXrDisplay display;
+    const bool initialized = display.Initialize();
+    UpdateStatus(display.Status());
+
+    if (!initialized) {
+        MSG message{};
+        while (true) {
+            const BOOL result = GetMessageW(&message, nullptr, 0, 0);
+            if (result == 0) return static_cast<int>(message.wParam);
+            if (result == -1) return 1;
+            TranslateMessage(&message);
+            DispatchMessageW(&message);
+        }
+    }
 
     MSG message{};
-    while (true) {
-        const BOOL result = GetMessageW(&message, nullptr, 0, 0);
-        if (result == 0) {
-            return static_cast<int>(message.wParam);
-        }
-        if (result == -1) {
-            return 1;
+    bool running = true;
+    while (running) {
+        while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE)) {
+            if (message.message == WM_QUIT) {
+                running = false;
+                break;
+            }
+            TranslateMessage(&message);
+            DispatchMessageW(&message);
         }
 
-        TranslateMessage(&message);
-        DispatchMessageW(&message);
+        if (!running) break;
+
+        display.PollEvents();
+        display.RenderFrame();
+
+        if (!display.IsSessionRunning()) {
+            UpdateStatus(display.Status());
+            Sleep(10);
+        }
     }
+
+    display.Shutdown();
+    return static_cast<int>(message.wParam);
 }

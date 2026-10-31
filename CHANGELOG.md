@@ -3,19 +3,16 @@
 ## [Unreleased]
 
 ### Added
-- Native Windows C++20 application foundation.
-- CMake and vcpkg manifest with pinned OpenXR baseline.
-- Win32 diagnostic window.
-- Direct3D 11 device probe.
-- OpenXR runtime and extension probe.
-- Initial unit tests.
-- Windows x64 GitHub Actions build, test and packaging workflow.
-
-### Changed
-- Replaced proposed Unity architecture with native Win32, OpenXR and Direct3D 11.
+- Native OpenXR display controller.
+- Runtime-specific D3D11 adapter selection.
+- OpenXR session lifecycle and VIEW reference space.
+- D3D11 swapchain render targets.
+- HLSL color-bar and reticle test panel.
+- Head-locked OpenXR quad composition layer.
 
 ### Not implemented yet
-- OpenXR session, D3D11 graphics binding and quad layer.
 - Windows Graphics Capture.
-- Video pipeline, OSD and HLSL effects.
-- Scenario Manager and Passthrough hardware validation.
+- OSD Editor and profiles.
+- Analog signal effect shaders.
+- Scenario Manager.
+- Physical Quest 3 / Quest Link validation.
